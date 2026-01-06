@@ -1,0 +1,425 @@
+body {
+    font-family: 'Arial', sans-serif;
+    background-color: #b9b7b5;
+    display: flex; /* Mantém flex para centralizar o container */
+    flex-direction: column; /* Coloca os itens em coluna */
+    justify-content: flex-start; /* Alinha o conteúdo ao topo por padrão */
+    align-items: center; /* Centraliza horizontalmente os itens flex (o container) */
+    min-height: 100vh; /* Garante que o body ocupe a altura total da viewport */
+    padding: 10px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    overflow-x: hidden; /* Evita barra de rolagem horizontal no body por padrão, controlamos o overflow em containers específicos */
+}
+
+.container {
+    text-align: center;
+    width: 100%;
+    max-width: 1400px; /* Aumentado para acomodar 9 imagens em uma única linha em desktop */
+    background-color: #e4e2e2;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.1);
+    margin-top: 20px;
+}
+
+h1 {
+    font-size: 1.8rem;
+    margin-bottom: 10px;
+    color: #1008a5;
+}
+
+p {
+    font-size: 1rem;
+    margin-bottom: 15px;
+    color: #666;
+}
+
+#score, #errors {
+    font-size: 1.4rem;
+    margin: 8px 0;
+}
+
+#reset {
+    padding: 10px 20px;
+    font-size: 1rem;
+    margin: 15px auto 25px auto;
+    color: #1008a5;
+    background-color: #a7a8a5;
+    border: none; /* Adicionado para consistência */
+    border-radius: 5px; /* Adicionado para consistência */
+    cursor: pointer; /* Adicionado para consistência */
+    transition: background-color 0.3s ease; /* Adicionado para consistência */
+}
+
+#reset:hover {
+    background-color: #e28e8e; /* Adicionado para consistência */
+}
+
+/* Estilo dos nomes das roupas (arrastáveis) */
+.clothing-name {
+    background-color: #87cefa;
+    color: #333;
+    padding: 12px 15px;
+    margin: 5px;
+    border-radius: 5px;
+    cursor: grab;
+    font-size: 1.1rem;
+    font-weight: 600;
+    display: inline-block;
+    transition: transform 0.2s, background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.15);
+    border: 1px solid rgba(0,0,0,0.1);
+}
+
+.clothing-name:active {
+    transform: scale(1.05);
+    cursor: grabbing;
+}
+
+.clothing-name.is-dragging {
+    opacity: 0.5;
+}
+
+/* Cores para os nomes */
+.clothing-name.color-1 { background-color: #FFDDC1; }
+.clothing-name.color-2 { background-color: #D4EDDA; }
+.clothing-name.color-3 { background-color: #CCE5FF; }
+.clothing-name.color-4 { background-color: #FFF3CD; }
+.clothing-name.color-5 { background-color: #F8D7DA; }
+.clothing-name.color-6 { background-color: #E2E3E5; }
+.clothing-name.color-7 { background-color: #D1ECF1; }
+.clothing-name.color-8 { background-color: #FFE5B4; }
+.clothing-name.color-9 { background-color: #B9D9EB; }
+.clothing-name.color-10 { background-color: #FFDDC1; }
+.clothing-name.color-11 { background-color: #D4EDDA; }
+.clothing-name.color-12 { background-color: #CCE5FF; }
+.clothing-name.color-13 { background-color: #CCE5FF; }
+.clothing-name.color-14 { background-color: #FFF3CD; }
+.clothing-name.color-15 { background-color: #F8D7DA; }
+.clothing-name.color-16 { background-color: #E2E3E5; }
+
+
+/* Estilo das zonas de drop (imagens) */
+.drop-zone-image {
+    padding: 5px;
+    margin: 10px;
+    min-height: 150px;
+    width: 200px;
+    border-radius: 8px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    font-size: 1.2rem;
+    font-weight: bold;
+    transition: background-color 0.3s ease-in-out, border 0.3s;
+    position: relative;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    border: 2px dashed transparent;
+    background-color: #dcdcdc;
+    height: 200px;
+}
+
+.drop-zone-image.drag-over {
+    border: 2px dashed #87cefa;
+    background-color: #e8f7ff;
+}
+
+.drop-zone-image.incorrect-drop {
+    border: 2px solid #FF6347; /* Vermelho para erro */
+    background-color: #ffe0db; /* Fundo mais claro para erro */
+}
+
+.drop-zone-image.correct-drop {
+    border: 2px solid #4CAF50; /* Verde para acerto */
+    background-color: #e6ffe6; /* Fundo mais claro para acerto */
+}
+
+
+.clothing-image {
+    max-width: 100%;
+    max-height: 120px;
+    width: 100%;
+    height: 100%;
+    display: block;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    transition: opacity 0.5s ease-in-out; /* Adicionado para a transição de opacidade */
+    object-fit: contain;
+}
+
+/* Estilo do nome APÓS ser dropado na imagem */
+.clothing-name-dropped {
+    background-color: #4CAF50;
+    color: white;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: auto;
+    text-align: center;
+    width: calc(100% - 10px);
+}
+
+/* Contêineres dos nomes e imagens */
+#nomes-roupas {
+    display: flex;
+    justify-content: center;
+    flex-wrap: nowrap; /* Garante uma única linha em desktop */
+    margin-bottom: 20px;
+    min-height: 50px;
+    padding: 5px;
+    border: 1px dashed #ccc;
+    border-radius: 5px;
+    overflow-x: auto; /* Permite rolagem horizontal para os nomes se não couberem */
+}
+
+#imagens-roupas {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap; /* Alterado de 'nowrap' para 'wrap' */
+    gap: 8px;
+    max-width: 1250px; /* Você pode querer ajustar isso para um valor maior ou remover se quiser que ocupe a largura total disponível e quebre */
+    margin: 0 auto;
+    /* overflow-x: auto;  Remover ou ajustar se não houver mais necessidade de rolagem horizontal */
+    padding-bottom: 10px;
+}
+
+/* Estilos para os fogos de artifício */
+#fireworks-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 1000;
+    overflow: hidden;
+    display: none; /* Controlado via JS */
+}
+
+.firework {
+    position: absolute;
+    background-color: #ff0;
+    border-radius: 50%;
+    opacity: 0;
+    animation: fadeOut 1s forwards;
+}
+
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+        transform: scale(1);
+    }
+    to {
+        opacity: 0;
+        transform: scale(1.5);
+    }
+}
+
+/* Novo estilo para a mensagem de parabéns */
+#congratulation-message {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: #FFEB3B;
+    color: #333;
+    padding: 30px 40px;
+    border-radius: 15px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    font-size: 2.5rem;
+    font-weight: bold;
+    text-align: center;
+    z-index: 1001;
+    border: 3px solid #FFC107;
+    animation: bounceIn 1s ease-out forwards;
+    white-space: nowrap;
+    display: none; /* Controlado via JS */
+}
+
+@keyframes bounceIn {
+    0% {
+        transform: translate(-50%, -50%) scale(0.3);
+        opacity: 0;
+    }
+    50% {
+        transform: translate(-50%, -50%) scale(1.1);
+        opacity: 1;
+    }
+    70% {
+        transform: translate(-50%, -50%) scale(0.9);
+    }
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+        opacity: 1;
+    }
+}
+
+/* Footer */
+footer {
+    margin-top: auto; /* ESSENCIAL: Empurra o footer para a parte inferior */
+    padding: 10px;
+    background-color: #f8e1e1;
+    color: #f50a0a;
+    text-align: center;
+    width: 100%; /* Garante que o footer ocupe toda a largura */
+    box-sizing: border-box;
+    flex-shrink: 0; /* Impede que o footer encolha, importante para flex-direction: column no body */
+}
+
+footer p {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+/* Nova classe para elementos que devem desaparecer com animação */
+.disappear-item {
+    opacity: 0 !important; /* Força a opacidade para 0 */
+    transition: opacity 0.5s ease-out; /* Transição suave de 0.5 segundos */
+}
+
+
+/* ===================================================================== */
+/* MEDIA QUERIES PARA RESPONSIVIDADE EM CELULARES E TELAS MENORES */
+/* ===================================================================== */
+
+@media (max-width: 768px) { /* Para tablets e celulares em modo paisagem */
+    body {
+        overflow-x: hidden; /* Garante que não haja rolagem horizontal no body em mobile */
+    }
+
+    .container {
+        padding: 15px;
+        max-width: 95%; /* Ajusta a largura máxima para preencher a tela */
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    p {
+        font-size: 0.9rem;
+    }
+
+    #score, #errors {
+        font-size: 1.2rem;
+    }
+
+    #reset {
+        padding: 8px 15px;
+        font-size: 0.9rem;
+        margin-bottom: 20px;
+    }
+
+    /* Nomes das roupas */
+    #nomes-roupas {
+        flex-wrap: wrap; /* Permite que os nomes quebrem a linha */
+        justify-content: center;
+        padding: 5px;
+        overflow-x: hidden; /* Remove rolagem horizontal aqui, já que vai quebrar linha */
+    }
+
+    .clothing-name {
+        margin: 5px 2px;
+        padding: 8px 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Imagens das roupas */
+    #imagens-roupas {
+        flex-wrap: wrap; /* Permite que as imagens quebrem a linha */
+        max-width: 100%; /* Ocupa a largura total disponível no contêiner pai */
+        justify-content: center; /* Centraliza as imagens */
+        gap: 5px; /* Reduz o espaçamento entre as imagens */
+        overflow-x: hidden; /* Remove rolagem horizontal aqui, já que vai quebrar linha */
+    }
+
+    .drop-zone-image {
+        width: 150px;
+        height: 130px;
+        /*width: calc(50% - 10px); /* Tenta 2 imagens por linha (50% - gap/2) */
+        min-height: 120px; /* Reduz a altura mínima */
+        margin: 5px 2px; /* Margem ajustada para caber melhor */
+        padding: 5px;
+        font-size: 1rem;
+    }
+
+    .clothing-image {
+        max-height: 110px; /* Reduz a altura máxima da imagem */
+    }
+
+    .clothing-name-dropped {
+        font-size: 0.75rem; /* Reduz a fonte do nome dropado */
+        padding: 3px 6px;
+    }
+
+    #congratulation-message {
+        font-size: 1.5rem; /* Reduz o tamanho da fonte da mensagem de parabéns */
+        padding: 20px 30px;
+    }
+
+    footer p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 480px) { /* Para celulares em modo retrato */
+    .container {
+        padding: 10px;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+    }
+
+    p {
+        font-size: 0.8rem;
+    }
+
+    #score, #errors {
+        font-size: 1rem;
+    }
+
+    #reset {
+        padding: 6px 12px;
+        font-size: 0.8rem;
+    }
+
+    .clothing-name {
+        padding: 6px 8px;
+        font-size: 0.8rem;
+    }
+    .drop-zone-image {
+        width: 120px; /* Garante que caibam 2 ou 3 por linha em um celular */
+        height: 100px;
+    }
+    .clothing-image {
+        max-height: 80px;
+    }
+
+    .clothing-name-dropped {
+        font-size: 0.7rem;
+    }
+
+    #congratulation-message {
+        font-size: 1.2rem;
+        padding: 15px 20px;
+    }
+
+    @media (max-width: 1200px) { /* Exemplo de breakpoint para telas médias */
+    .clothing-name {
+        padding: 10px 12px;
+        font-size: 1rem;
+    }
+    .drop-zone-image {
+        width: 180px;
+        height: 160px;
+    }
+    .clothing-image {
+        max-height: 140px;
+    }
+    }
+}
